@@ -1,0 +1,99 @@
+header {
+    box-sizing: border-box;
+    height: var(--rtk-space-16, 64px);
+    width: 100%;
+    padding: var(--rtk-space-4, 16px);
+    display: flex;
+    justify-content: space-between;
+    --tw-bg-opacity: 1;
+    background-color: rgba(var(--rtk-colors-background-1000, 8 8 8) / var(--tw-bg-opacity));
+    border-left-width: var(--rtk-border-width-none, 0);
+    border-right-width: var(--rtk-border-width-none, 0);
+    border-bottom-width: var(--rtk-border-width-sm, 1px);
+    border-top-width: var(--rtk-border-width-none, 0);
+    border-style: solid;
+    --tw-border-opacity: 1;
+    border-bottom-color: rgba(var(--rtk-colors-background-800, 30 30 30) / var(--tw-border-opacity))
+}
+
+  header.searching {
+    justify-content: flex-end
+}
+
+  header.searching .channel-details {
+    display: none
+}
+
+  header .channel-details {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+    justify-content: center;
+    height: var(--rtk-space-9, 36px);
+    width: var(--rtk-space-1, 4px)
+}
+
+  header .channel-details .name {
+    font-weight: 500
+}
+
+  header .channel-details .members {
+    margin-top: var(--rtk-space-0\.5, 2px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    color: rgb(var(--rtk-colors-text-600, 255 255 255 / 0.52))
+}
+
+  header .channel-tools {
+    display: flex;
+    flex-shrink: 0;
+    justify-content: flex-end;
+    gap: var(--rtk-space-1, 4px);
+    min-width: var(--rtk-space-24, 96px)
+}
+
+  header .channel-tools rtk-tooltip {
+    height: var(--rtk-space-8, 32px);
+    width: var(--rtk-space-10, 40px);
+    display: flex
+}
+
+  header .search-input {
+    height: var(--rtk-space-8, 32px);
+    width: var(--rtk-space-48, 192px);
+    padding-left: var(--rtk-space-2, 8px);
+    padding-right: var(--rtk-space-2, 8px);
+    border-width: var(--rtk-border-width-none, 0);
+    border-style: none;
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    border-radius: var(--rtk-border-radius-sm, 4px);
+    --tw-bg-opacity: 1;
+    background-color: rgba(var(--rtk-colors-background-800, 30 30 30) / var(--tw-bg-opacity));
+    color: rgb(var(--rtk-colors-text-1000, 255 255 255))
+}
+
+  header .name {
+    font-size: 16px
+}
+
+  header .br-primary-btn {
+    background-color: transparent
+}
+
+  header .br-primary-btn:hover {
+    --tw-bg-opacity: 1;
+    background-color: rgba(var(--rtk-colors-background-800, 30 30 30) / var(--tw-bg-opacity))
+}
+
+@media (orientation: landscape) and (min-width: 400px) {
+      header.searching .channel-details {
+        display: flex
+    }
+}
+
+.back-btn {
+    margin-right: var(--rtk-space-3, 12px)
+}

@@ -1,0 +1,45 @@
+import { EventEmitter } from '../../stencil-public-runtime';
+import { MeetingMode } from '../rtk-meeting/rtk-meeting';
+import { Meeting } from '../../types/rtk-client';
+import { RtkI18n, IconPack, States, UIConfig } from '../../exports';
+export declare class RtkUiProvider {
+    host: HTMLRtkUiProviderElement;
+    private peerStore;
+    private providerId;
+    private storeRequestListener;
+    private stateUpdateListener;
+    /** Meeting */
+    meeting: Meeting | null;
+    /** Icon pack */
+    iconPack: IconPack;
+    /** Language utility */
+    t: RtkI18n;
+    /** Config */
+    config: UIConfig;
+    /** Fill type */
+    mode: MeetingMode;
+    /** Whether to show setup screen or not */
+    showSetupScreen: boolean;
+    /**
+     * Emits `rtkStatesUpdate` so that developers can listen to onRtkStatesUpdate and update their own stores
+     * Do not confuse this with `rtkStateUpdate` that other components emit
+     */
+    statesUpdate: EventEmitter<States>;
+    private authErrorListener;
+    connectedCallback(): void;
+    disconnectedCallback(): void;
+    private updateStates;
+    private setupStateUpdateListener;
+    private setupStoreRequestListener;
+    meetingChanged(meeting: Meeting): void;
+    iconPackChanged(newIconPack: IconPack): void;
+    tChanged(newT: RtkI18n): void;
+    configChanged(config: UIConfig): void;
+    private roomJoinedListener;
+    private waitlistedListener;
+    private roomLeftListener;
+    private mediaPermissionUpdateListener;
+    private socketConnectionUpdateListener;
+    private handleChangingMeeting;
+    render(): any;
+}

@@ -1,0 +1,69 @@
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+const index$1 = require('./index-05554ce6.js');
+const string = require('./string-a410fab6.js');
+const uiStore = require('./ui-store-4edab2a5.js');
+const index = require('./index-77d3cd4a.js');
+
+const rtkNameTagCss = ":host{line-height:initial;font-family:var(--rtk-font-family, sans-serif);font-feature-settings:normal;font-variation-settings:normal}p{margin:var(--rtk-space-0, 0px);padding:var(--rtk-space-0, 0px)}:host{display:inline-flex;-webkit-user-select:none;-moz-user-select:none;user-select:none;align-items:center;padding-top:var(--rtk-space-1, 4px);padding-bottom:var(--rtk-space-1, 4px);padding-left:var(--rtk-space-1\\.5, 6px);padding-right:var(--rtk-space-1\\.5, 6px);font-size:14px;border-radius:var(--rtk-border-radius-sm, 4px);--tw-bg-opacity:1;background-color:rgba(var(--rtk-colors-background-700, 44 44 44) / var(--tw-bg-opacity));color:rgb(var(--rtk-colors-text-900, 255 255 255 / 0.88))}span.name{overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1}::slotted(rtk-audio-visualizer[slot='start']){margin-right:var(--rtk-space-1\\.5, 6px)}::slotted(rtk-audio-visualizer[slot='end']){margin-left:var(--rtk-space-1\\.5, 6px)}:host([size='sm']){font-size:12px;--tw-bg-opacity:0.6}:host([variant='text']){background-color:transparent;padding:var(--rtk-space-0, 0px)}";
+const RtkNameTagStyle0 = rtkNameTagCss;
+
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function")
+        r = Reflect.decorate(decorators, target, key, desc);
+    else
+        for (var i = decorators.length - 1; i >= 0; i--)
+            if (d = decorators[i])
+                r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+const RtkNameTag = class {
+    constructor(hostRef) {
+        index$1.registerInstance(this, hostRef);
+        /** Whether it is used in a screen share view */
+        this.isScreenShare = false;
+        /** Name tag variant */
+        this.variant = 'default';
+        /** Icon pack */
+        this.iconPack = uiStore.defaultIconPack;
+        /** Language */
+        this.t = uiStore.useLanguage();
+        this.length = 13;
+    }
+    sizeChanged(size) {
+        this.length = size === 'sm' ? 8 : 13;
+    }
+    formatNameTag(name, isSelf) {
+        return !this.isScreenShare
+            ? isSelf
+                ? `${string.shorten(name, this.length - 3)} (${this.t('you')})`
+                : string.shorten(name, this.length)
+            : isSelf
+                ? `${this.t('screen')} - ${string.shorten(name, this.length - 3)} (${this.t('you')})`
+                : `${this.t('screen')} - ${string.shorten(name, this.length)}`;
+    }
+    render() {
+        var _a, _b, _c;
+        const name = string.formatName(((_a = this.participant) === null || _a === void 0 ? void 0 : _a.name) || '');
+        const isSelf = ((_b = this.participant) === null || _b === void 0 ? void 0 : _b.id) === ((_c = this.meeting) === null || _c === void 0 ? void 0 : _c.self.id);
+        return (index$1.h(index$1.Host, { key: 'd42b26fe39b4a8643e32b420ec6cded7450dde20', title: name }, index$1.h("slot", { key: '5235adedfaef8eb0b99d46f9b6e89efe40e53f68', name: "start" }), index$1.h("span", { key: 'bd15296809e2caf334c6786e45e3b751633ff001', class: "name" }, this.formatNameTag(name, isSelf)), index$1.h("slot", { key: '6f5a39cfecf90b9d449b08274eb20b450bcba196', name: "end" })));
+    }
+    static get watchers() { return {
+        "size": ["sizeChanged"]
+    }; }
+};
+__decorate([
+    index.SyncWithStore()
+], RtkNameTag.prototype, "meeting", void 0);
+__decorate([
+    index.SyncWithStore()
+], RtkNameTag.prototype, "iconPack", void 0);
+__decorate([
+    index.SyncWithStore()
+], RtkNameTag.prototype, "t", void 0);
+RtkNameTag.style = RtkNameTagStyle0;
+
+exports.rtk_name_tag = RtkNameTag;

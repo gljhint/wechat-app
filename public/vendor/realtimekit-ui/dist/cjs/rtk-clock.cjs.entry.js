@@ -1,0 +1,98 @@
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+const index$1 = require('./index-05554ce6.js');
+const uiStore = require('./ui-store-4edab2a5.js');
+const index = require('./index-77d3cd4a.js');
+
+const rtkClockCss = ":host{line-height:initial;font-family:var(--rtk-font-family, sans-serif);font-feature-settings:normal;font-variation-settings:normal}p{margin:var(--rtk-space-0, 0px);padding:var(--rtk-space-0, 0px)}:host{display:inline-flex;align-items:center;-webkit-user-select:none;-moz-user-select:none;user-select:none;font-size:14px;color:rgb(var(--rtk-colors-text-1000, 255 255 255));font-variant-numeric:tabular-nums}:host([data-hidden]){display:none}:host([size='sm']){font-size:12px}rtk-icon{margin-right:var(--rtk-space-1, 4px);height:var(--rtk-space-5, 20px);width:var(--rtk-space-5, 20px)}:host([size='sm']) rtk-icon{height:var(--rtk-space-4, 16px);width:var(--rtk-space-4, 16px)}";
+const RtkClockStyle0 = rtkClockCss;
+
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function")
+        r = Reflect.decorate(decorators, target, key, desc);
+    else
+        for (var i = decorators.length - 1; i >= 0; i--)
+            if (d = decorators[i])
+                r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+const addZero = (n) => Math.trunc(n).toString().padStart(2, '0');
+const RtkClock = class {
+    constructor(hostRef) {
+        index$1.registerInstance(this, hostRef);
+        /** Icon pack */
+        this.iconPack = uiStore.defaultIconPack;
+        this.disconnectMeeting = () => {
+            var _a, _b;
+            this.timeout && clearTimeout(this.timeout);
+            typeof this.request === 'number' && cancelAnimationFrame(this.request);
+            (_b = (_a = this.meeting) === null || _a === void 0 ? void 0 : _a.meta) === null || _b === void 0 ? void 0 : _b.removeListener('meetingStartTimeUpdate', this.startedTimeUpdateListener);
+        };
+        this.startedTimeUpdateListener = () => {
+            var _a, _b, _c;
+            this.startedTime = (_c = (_b = (_a = this.meeting) === null || _a === void 0 ? void 0 : _a.meta) === null || _b === void 0 ? void 0 : _b.meetingStartedTimestamp) === null || _c === void 0 ? void 0 : _c.toISOString();
+        };
+    }
+    connectedCallback() {
+        this.meetingChanged(this.meeting);
+    }
+    disconnectedCallback() {
+        this.disconnectMeeting();
+    }
+    meetingChanged(meeting) {
+        var _a, _b, _c;
+        this.disconnectMeeting();
+        if (meeting != null) {
+            this.startedTime = (_b = (_a = meeting.meta) === null || _a === void 0 ? void 0 : _a.meetingStartedTimestamp) === null || _b === void 0 ? void 0 : _b.toISOString();
+            (_c = meeting.meta) === null || _c === void 0 ? void 0 : _c.addListener('meetingStartTimeUpdate', this.startedTimeUpdateListener);
+        }
+    }
+    startedTimeChanged(startedTime) {
+        if (startedTime !== undefined) {
+            const animate = () => {
+                this.timeDiff = (Date.now() - new Date(this.startedTime).getTime()) / 1000;
+                this.timeout = setTimeout(() => {
+                    if (this.request != null) {
+                        this.request = requestAnimationFrame(animate);
+                    }
+                }, 500);
+            };
+            this.request = requestAnimationFrame(animate);
+        }
+    }
+    getFormattedTime() {
+        if (this.timeDiff == null) {
+            return null;
+        }
+        const diff = this.timeDiff;
+        let time = '';
+        if (diff >= 3600) {
+            time = `${addZero(diff / 3600)}:`;
+        }
+        time += `${addZero((diff % 3600) / 60)}:${addZero(diff % 60)}`;
+        return time;
+    }
+    render() {
+        const showClock = this.startedTime !== undefined;
+        return (index$1.h(index$1.Host, { key: '23a8a2e6c14a8c1d1dd70dce26df45f1a302f085', "data-hidden": !showClock, tabIndex: 0, role: "timer", "aria-live": "off" }, this.startedTime !== undefined && [
+            index$1.h("rtk-icon", { key: '914bd75f8e3a14df602bbb58b2c2d75b26f7cb27', icon: this.iconPack.clock, "aria-hidden": true, tabIndex: -1, part: "icon" }),
+            index$1.h("span", { key: 'abb38cd4d3dbb3a6be06d1bf98b082c42551af2c', part: "text" }, this.getFormattedTime()),
+        ]));
+    }
+    static get watchers() { return {
+        "meeting": ["meetingChanged"],
+        "startedTime": ["startedTimeChanged"]
+    }; }
+};
+__decorate([
+    index.SyncWithStore()
+], RtkClock.prototype, "meeting", void 0);
+__decorate([
+    index.SyncWithStore()
+], RtkClock.prototype, "iconPack", void 0);
+RtkClock.style = RtkClockStyle0;
+
+exports.rtk_clock = RtkClock;

@@ -1,0 +1,93 @@
+:host {
+  line-height: initial;
+  font-family: var(--rtk-font-family, sans-serif);
+
+  font-feature-settings: normal;
+  font-variation-settings: normal;
+}
+
+p {
+  margin: var(--rtk-space-0, 0px);
+  padding: var(--rtk-space-0, 0px);
+}
+
+.scrollbar {
+  /* For Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: var(--rtk-scrollbar-color, rgb(var(--rtk-colors-background-600, 60 60 60)))
+    var(--rtk-scrollbar-background, transparent);
+}
+
+/* For WebKit */
+.scrollbar::-webkit-scrollbar {
+  height: var(--rtk-space-1\.5, 6px);
+  width: var(--rtk-space-1\.5, 6px);
+  border-radius: 9999px;
+  background-color: var(--rtk-scrollbar-background, transparent);
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background-color: var(--rtk-scrollbar-color, rgb(var(--rtk-colors-background-600, 60 60 60)));
+}
+
+
+:host {
+  border-radius: var(--rtk-border-radius-md, 8px);
+  --tw-bg-opacity: 1;
+  background-color: rgba(var(--rtk-colors-background-1000, 8 8 8) / var(--tw-bg-opacity));
+  display: flex;
+  flex-direction: column;
+  width: var(--rtk-space-72, 288px);
+  padding-top: var(--rtk-space-5, 20px);
+  padding-bottom: var(--rtk-space-5, 20px);
+  padding-left: var(--rtk-space-8, 32px);
+  padding-right: var(--rtk-space-8, 32px);
+}
+
+header {
+  font-size: 20px;
+}
+
+rtk-spinner {
+  margin-top: var(--rtk-space-10, 40px);
+  margin-bottom: var(--rtk-space-10, 40px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+ul {
+  margin-left: var(--rtk-space-0, 0px);
+  margin-right: var(--rtk-space-0, 0px);
+  margin-top: var(--rtk-space-6, 24px);
+  margin-bottom: var(--rtk-space-4, 16px);
+  height: var(--rtk-space-48, 192px);
+  padding: var(--rtk-space-0, 0px);
+  overflow-y: auto;
+  list-style-type: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--rtk-space-2, 8px);
+}
+
+ul li {
+  margin-right: var(--rtk-space-2, 8px);
+  display: flex;
+  align-items: center;
+  gap: var(--rtk-space-2, 8px);
+  padding: var(--rtk-space-2, 8px);
+  cursor: pointer;
+  border-radius: var(--rtk-border-radius-sm, 4px);
+}
+
+ul li:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgba(var(--rtk-colors-background-600, 60 60 60) / var(--tw-bg-opacity));
+}
+
+ul li rtk-avatar {
+  height: var(--rtk-space-7, 28px);
+  width: var(--rtk-space-7, 28px);
+  font-size: 14px;
+  color: rgb(var(--rtk-colors-text-1000, 255 255 255));
+}

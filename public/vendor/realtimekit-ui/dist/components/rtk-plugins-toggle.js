@@ -1,0 +1,149 @@
+import { p as proxyCustomElement, H, d as createEvent, h, e as Host } from './p-c3592601.js';
+import { e as defaultIconPack, h as useLanguage } from './p-74e01969.js';
+import { b as canViewPlugins } from './p-eac0e95c.js';
+import { S as SyncWithStore } from './p-beb5c7c8.js';
+import { d as defineCustomElement$4 } from './p-c5b6ed4f.js';
+import { d as defineCustomElement$3 } from './p-3b29dda1.js';
+import { d as defineCustomElement$2 } from './p-a59a9c97.js';
+
+const rtkPluginsToggleCss = ":host{line-height:initial;font-family:var(--rtk-font-family, sans-serif);font-feature-settings:normal;font-variation-settings:normal}p{margin:var(--rtk-space-0, 0px);padding:var(--rtk-space-0, 0px)}:host{display:block}:host([data-hidden]){display:none}";
+const RtkPluginsToggleStyle0 = rtkPluginsToggleCss;
+
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function")
+        r = Reflect.decorate(decorators, target, key, desc);
+    else
+        for (var i = decorators.length - 1; i >= 0; i--)
+            if (d = decorators[i])
+                r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+const RtkPluginsToggle$1 = /*@__PURE__*/ proxyCustomElement(class RtkPluginsToggle extends H {
+    constructor() {
+        super();
+        this.__registerHost();
+        this.__attachShadow();
+        this.stateUpdate = createEvent(this, "rtkStateUpdate", 7);
+        /** Variant */
+        this.variant = 'button';
+        /** Icon pack */
+        this.iconPack = defaultIconPack;
+        /** Language */
+        this.t = useLanguage();
+        this.pluginsActive = false;
+        this.canViewPlugins = false;
+        this.updateCanView = () => {
+            this.canViewPlugins = canViewPlugins(this.meeting);
+        };
+    }
+    disconnectedCallback() {
+        var _a, _b, _c, _d;
+        (_b = (_a = this.meeting) === null || _a === void 0 ? void 0 : _a.stage) === null || _b === void 0 ? void 0 : _b.removeListener('stageStatusUpdate', this.updateCanView);
+        (_d = (_c = this.meeting) === null || _c === void 0 ? void 0 : _c.self) === null || _d === void 0 ? void 0 : _d.permissions.removeListener('pluginsUpdate', this.updateCanView);
+    }
+    connectedCallback() {
+        this.statesChanged(this.states);
+        this.meetingChanged(this.meeting);
+    }
+    meetingChanged(meeting) {
+        var _a, _b;
+        if (!meeting)
+            return;
+        this.canViewPlugins = canViewPlugins(meeting);
+        (_a = meeting === null || meeting === void 0 ? void 0 : meeting.stage) === null || _a === void 0 ? void 0 : _a.on('stageStatusUpdate', this.updateCanView);
+        (_b = meeting === null || meeting === void 0 ? void 0 : meeting.self) === null || _b === void 0 ? void 0 : _b.permissions.addListener('pluginsUpdate', this.updateCanView);
+    }
+    statesChanged(states) {
+        if (states != null) {
+            this.pluginsActive = states.activeSidebar === true && states.sidebar === 'plugins';
+        }
+    }
+    togglePlugins() {
+        const states = this.states;
+        this.pluginsActive = !((states === null || states === void 0 ? void 0 : states.activeSidebar) && (states === null || states === void 0 ? void 0 : states.sidebar) === 'plugins');
+        this.stateUpdate.emit({
+            activeSidebar: this.pluginsActive,
+            sidebar: this.pluginsActive ? 'plugins' : undefined,
+            activeMoreMenu: false,
+            activeAI: false,
+        });
+    }
+    handlePluginsActiveChange() {
+        // Plugins sidebar closed without opening a different sidebar
+        if (!this.pluginsActive && !this.states.activeSidebar) {
+            this.buttonEl.focus();
+        }
+    }
+    render() {
+        if (!this.canViewPlugins)
+            return h(Host, { "data-hidden": true });
+        const text = this.t('plugins');
+        return (h(Host, { title: text }, h("rtk-controlbar-button", { ref: (el) => (this.buttonEl = el), part: "controlbar-button", size: this.size, iconPack: this.iconPack, class: { active: this.pluginsActive }, onClick: () => this.togglePlugins(), icon: this.iconPack.rocket, label: text, variant: this.variant })));
+    }
+    static get watchers() { return {
+        "meeting": ["meetingChanged"],
+        "states": ["statesChanged"],
+        "pluginsActive": ["handlePluginsActiveChange"]
+    }; }
+    static get style() { return RtkPluginsToggleStyle0; }
+}, [1, "rtk-plugins-toggle", {
+        "variant": [513],
+        "meeting": [16],
+        "states": [16],
+        "size": [513],
+        "iconPack": [16],
+        "t": [16],
+        "pluginsActive": [32],
+        "canViewPlugins": [32]
+    }, undefined, {
+        "meeting": ["meetingChanged"],
+        "states": ["statesChanged"],
+        "pluginsActive": ["handlePluginsActiveChange"]
+    }]);
+__decorate([
+    SyncWithStore()
+], RtkPluginsToggle$1.prototype, "meeting", void 0);
+__decorate([
+    SyncWithStore()
+], RtkPluginsToggle$1.prototype, "states", void 0);
+__decorate([
+    SyncWithStore()
+], RtkPluginsToggle$1.prototype, "iconPack", void 0);
+__decorate([
+    SyncWithStore()
+], RtkPluginsToggle$1.prototype, "t", void 0);
+function defineCustomElement$1() {
+    if (typeof customElements === "undefined") {
+        return;
+    }
+    const components = ["rtk-plugins-toggle", "rtk-controlbar-button", "rtk-icon", "rtk-spinner"];
+    components.forEach(tagName => { switch (tagName) {
+        case "rtk-plugins-toggle":
+            if (!customElements.get(tagName)) {
+                customElements.define(tagName, RtkPluginsToggle$1);
+            }
+            break;
+        case "rtk-controlbar-button":
+            if (!customElements.get(tagName)) {
+                defineCustomElement$4();
+            }
+            break;
+        case "rtk-icon":
+            if (!customElements.get(tagName)) {
+                defineCustomElement$3();
+            }
+            break;
+        case "rtk-spinner":
+            if (!customElements.get(tagName)) {
+                defineCustomElement$2();
+            }
+            break;
+    } });
+}
+defineCustomElement$1();
+
+const RtkPluginsToggle = RtkPluginsToggle$1;
+const defineCustomElement = defineCustomElement$1;
+
+export { RtkPluginsToggle, defineCustomElement };
