@@ -14,6 +14,93 @@
     <!-- 中文翻译配置 - 必须在 UI 加载之前定义 -->
     <script src="/js/realtimekit-lang-zh-CN.js"></script>
 
+    <!-- 屏幕常亮脚本 -->
+    <script>
+        // 屏幕常亮：优先使用 Wake Lock API，降级到 Audio 播放
+        (function keepScreenAwake() {
+            let wakeLock = null;
+            let fallbackAudio = null;
+
+            // 方案1：尝试使用标准 Wake Lock API
+            async function tryWakeLockAPI() {
+                if (!('wakeLock' in navigator)) {
+                    console.log('× Wake Lock API 不支持，降级到音频方案');
+                    return false;
+                }
+
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    console.log('✓ 屏幕常亮已启用（Wake Lock API）');
+
+                    // 监听 wake lock 释放事件
+                    wakeLock.addEventListener('release', () => {
+                        console.log('Wake Lock 已释放');
+                    });
+
+                    return true;
+                } catch (err) {
+                    console.log('× Wake Lock API 请求失败:', err.message, '- 降级到音频方案');
+                    return false;
+                }
+            }
+
+            // 方案2：降级方案 - 使用无声音频循环播放
+            function useFallbackAudio() {
+                try {
+                    // 创建 AudioContext 生成无声音频
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    gainNode.gain.value = 0.001; // 几乎无声
+                    oscillator.frequency.value = 20; // 低频，人耳几乎听不到
+                    oscillator.start(0);
+
+                    console.log('✓ 屏幕常亮已启用（Audio 降级方案）');
+
+                    // 保存引用以便清理
+                    fallbackAudio = { audioContext, oscillator, gainNode };
+                } catch (err) {
+                    console.warn('× 音频降级方案也失败:', err);
+                }
+            }
+
+            // 重新获取 wake lock
+            async function reacquireWakeLock() {
+                if (!document.hidden && wakeLock !== null && wakeLock.released) {
+                    try {
+                        wakeLock = await navigator.wakeLock.request('screen');
+                        console.log('✓ Wake Lock 已重新获取');
+                    } catch (err) {
+                        console.warn('重新获取 Wake Lock 失败:', err);
+                    }
+                }
+            }
+
+            // 初始化
+            async function init() {
+                const wakeLockSuccess = await tryWakeLockAPI();
+
+                if (!wakeLockSuccess) {
+                    // Wake Lock API 失败，使用降级方案
+                    useFallbackAudio();
+                } else {
+                    // Wake Lock API 成功，监听页面可见性变化
+                    document.addEventListener('visibilitychange', reacquireWakeLock);
+                }
+            }
+
+            // 页面加载后启动
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        })();
+    </script>
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 

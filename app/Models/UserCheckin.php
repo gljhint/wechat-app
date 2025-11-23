@@ -20,7 +20,7 @@ class UserCheckin extends Model
     ];
 
     protected $casts = [
-        'checkin_date' => 'date',
+        'checkin_date' => 'date:Y-m-d', // 强制格式化为纯日期字符串,不做时区转换
         'completed_at' => 'datetime',
         'is_completed' => 'integer',
     ];

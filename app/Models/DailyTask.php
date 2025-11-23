@@ -17,7 +17,7 @@ class DailyTask extends Model
     ];
 
     protected $casts = [
-        'task_date' => 'date',
+        'task_date' => 'date:Y-m-d',
         'status' => 'integer',
     ];
 

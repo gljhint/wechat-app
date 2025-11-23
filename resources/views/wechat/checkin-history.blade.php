@@ -582,7 +582,11 @@ function renderCalendar() {
     if (historyData) {
         historyData.forEach(item => {
             // 提取日期部分 YYYY-MM-DD (兼容时间戳格式)
-            const dateKey = item.checkin_date.split('T')[0];
+            let dateKey = item.checkin_date;
+            // 如果包含时间戳,提取日期部分
+            if (dateKey.includes('T') || dateKey.includes(' ')) {
+                dateKey = dateKey.split(/[T\s]/)[0];
+            }
             checkinMap[dateKey] = item;
         });
     }
@@ -593,8 +597,9 @@ function renderCalendar() {
     // 获取本月天数
     const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
 
-    // 今天的日期字符串(使用本地时区)
+    // 今天的日期字符串(使用本地时区,避免UTC转换)
     const nowDate = new Date();
+    // 使用本地时间确保不受时区影响
     const today = `${nowDate.getFullYear()}-${String(nowDate.getMonth() + 1).padStart(2, '0')}-${String(nowDate.getDate()).padStart(2, '0')}`;
 
     let html = '';
@@ -603,6 +608,7 @@ function renderCalendar() {
     for (let i = 0; i < firstDay; i++) {
         html += '<div class="calendar-day empty"></div>';
     }
+
 
     // 渲染每一天
     for (let day = 1; day <= daysInMonth; day++) {
@@ -832,18 +838,21 @@ function performMakeup(date) {
                 loadHistory();
             }, 500);
         } else {
-            weui.alert(response.data.message || '补打卡失败', {
-                title: '提示'
+            weui.toast(response.message || '补打卡失败', {
+                duration: 2000,
+                className: 'custom-toast'
             });
         }
     })
     .catch(error => {
         loading.hide();
-        console.error('补打卡失败:', error);
+        //console.error('补打卡失败:', error);
 
         const message = error.response?.data?.message || '补打卡失败，请重试';
-        weui.alert(message, {
-            title: '错误'
+
+        weui.toast(message || '补打卡失败', {
+            duration: 2000,
+            className: 'custom-toast'
         });
     });
 }
