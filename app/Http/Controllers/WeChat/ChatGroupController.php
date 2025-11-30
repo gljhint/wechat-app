@@ -133,10 +133,11 @@ class ChatGroupController extends Controller
             // 移除原始的lastMessage关联(避免返回加密数据)
             unset($group->lastMessage);
 
-            // 获取未读消息数
+            // 获取未读消息数（排除已撤回的消息）
             $group->unread_count = ChatMessage::where('group_id', $group->id)
                 ->where('from_user_id', '!=', $userId)
                 ->where('is_read', 0)
+                ->where('is_recalled', ChatMessage::NOT_RECALLED)
                 ->count();
         }
 

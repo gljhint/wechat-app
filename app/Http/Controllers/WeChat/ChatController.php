@@ -348,6 +348,7 @@ class ChatController extends Controller
 
         $unreadCount = ChatMessage::where('to_user_id', $userId)
                                  ->where('is_read', 0)
+                                 ->where('is_recalled', ChatMessage::NOT_RECALLED)
                                  ->count();
 
         return response()->json([
@@ -535,10 +536,11 @@ class ChatController extends Controller
 
             $contact->last_message = $lastMessage ? new ChatMessageResource($lastMessage) : null;
 
-            // 获取未读消息数
+            // 获取未读消息数（排除已撤回的消息）
             $contact->unread_count = ChatMessage::where('from_user_id', $contact->id)
                                                ->where('to_user_id', $userId)
                                                ->where('is_read', 0)
+                                               ->where('is_recalled', ChatMessage::NOT_RECALLED)
                                                ->count();
         }
 

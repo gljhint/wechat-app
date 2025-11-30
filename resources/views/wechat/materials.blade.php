@@ -79,6 +79,12 @@
         height: 72px;
         fill: #c5d9ff;
     }
+    .weui-search-bar {
+        flex: 1;
+        margin: 0;
+        overflow: hidden;
+        background-color: #ededed;
+    }
 </style>
 @endpush
 

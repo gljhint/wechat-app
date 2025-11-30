@@ -57,6 +57,10 @@
         height: 22px;
         fill: #666;
     }
+
+    .weui-cell__bd{
+        color: #000;
+    }
 </style>
 @endpush
 

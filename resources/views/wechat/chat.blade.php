@@ -20,6 +20,7 @@
         flex: 1;
         margin: 0;
         overflow: hidden;
+        background-color: #ededed;
     }
 
     .search-new-btn {

@@ -600,7 +600,7 @@ function renderMessages({ forceScroll = false } = {}) {
 
         const bubbleClass = isMine ? 'group-chat__bubble group-chat__bubble--mine' : 'group-chat__bubble';
         const bubbleStyle = isMine ? 'cursor: pointer;' : '';
-        const onClickAttr = isMine ? `data-message-id="${message.id}" onclick="handleGroupMessageClick(event, ${JSON.stringify(message).replace(/"/g, '&quot;')})"` : '';
+        const onClickAttr = isMine ? `data-message-id="${message.id}"` : '';
 
         parts.push(`
             <div class="group-chat__message-item ${isMine ? 'mine' : ''}">
