@@ -132,9 +132,6 @@ class ChatController extends Controller
             // 加载关联数据
             $message->load(['fromUser', 'toUser']);
 
-            // 这里可以添加实时推送逻辑（WebSocket、Server-Sent Events等）
-            $this->broadcastMessage($message);
-
             return response()->json([
                 'code' => 200,
                 'message' => '发送成功',
@@ -222,7 +219,8 @@ class ChatController extends Controller
             $offset = 0;
         }
 
-        $query = ChatMessage::with(['fromUser', 'toUser']);
+        $query = ChatMessage::with(['fromUser', 'toUser'])
+                           ->where('is_recalled', ChatMessage::NOT_RECALLED);
 
         if ($request->chat_with) {
             // 私聊消息
@@ -366,7 +364,7 @@ class ChatController extends Controller
     public function deleteMessage(Request $request, $messageId)
     {
         $userId = Session::get('wechat_user_id');
-        
+
         if (!$userId) {
             return response()->json([
                 'code' => 401,
@@ -375,7 +373,7 @@ class ChatController extends Controller
         }
 
         $message = ChatMessage::find($messageId);
-        
+
         if (!$message) {
             return response()->json([
                 'code' => 404,
@@ -406,6 +404,88 @@ class ChatController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * 撤回消息
+     */
+    public function recallMessage(Request $request, $messageId)
+    {
+        $userId = Session::get('wechat_user_id');
+
+        if (!$userId) {
+            return response()->json([
+                'code' => 401,
+                'message' => '未登录'
+            ], 401);
+        }
+
+        $message = ChatMessage::find($messageId);
+
+        if (!$message) {
+            return response()->json([
+                'code' => 404,
+                'message' => '消息不存在'
+            ], 404);
+        }
+
+        // 只能撤回自己发送的消息
+        if ($message->from_user_id !== $userId) {
+            return response()->json([
+                'code' => 403,
+                'message' => '无权撤回此消息'
+            ], 403);
+        }
+
+        // 检查是否已经撤回
+        if ($message->is_recalled) {
+            return response()->json([
+                'code' => 400,
+                'message' => '消息已撤回'
+            ], 400);
+        }
+
+        // 检查撤回时间限制（10分钟内）
+        $recallTimeLimit = 10 * 60; // 10分钟
+        $messageAge = now()->diffInSeconds($message->created_at);
+
+        if ($messageAge > $recallTimeLimit) {
+            return response()->json([
+                'code' => 400,
+                'message' => '消息发送超过2分钟，无法撤回'
+            ], 400);
+        }
+
+        try {
+            $message->recall();
+
+            // 广播撤回事件（如果有实时推送）
+            $this->broadcastRecall($message);
+
+            return response()->json([
+                'code' => 200,
+                'message' => '撤回成功',
+                'data' => new ChatMessageResource($message->fresh())
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('撤回消息失败: ' . $e->getMessage());
+
+            return response()->json([
+                'code' => 500,
+                'message' => '撤回失败',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * 广播撤回事件
+     */
+    protected function broadcastRecall(ChatMessage $message)
+    {
+        // 如果有WebSocket或其他实时推送机制，在这里实现
+        // 目前留空，前端通过轮询获取撤回状态
     }
 
     /**

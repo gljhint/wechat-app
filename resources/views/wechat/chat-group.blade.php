@@ -598,12 +598,16 @@ function renderMessages({ forceScroll = false } = {}) {
         const bubble = formatMessageContent(message);
         const time = utils.formatTime(message.created_at);
 
+        const bubbleClass = isMine ? 'group-chat__bubble group-chat__bubble--mine' : 'group-chat__bubble';
+        const bubbleStyle = isMine ? 'cursor: pointer;' : '';
+        const onClickAttr = isMine ? `data-message-id="${message.id}" onclick="handleGroupMessageClick(event, ${JSON.stringify(message).replace(/"/g, '&quot;')})"` : '';
+
         parts.push(`
             <div class="group-chat__message-item ${isMine ? 'mine' : ''}">
                 <img src="${avatar}" alt="${displayName}" class="group-chat__avatar" loading="lazy">
                 <div class="group-chat__bubble-wrap">
                     <span class="group-chat__name">${displayName}</span>
-                    <div class="group-chat__bubble">${bubble}</div>
+                    <div class="${bubbleClass}" style="${bubbleStyle}" ${onClickAttr}>${bubble}</div>
                     <span class="group-chat__time">${time}</span>
                 </div>
             </div>
@@ -611,6 +615,28 @@ function renderMessages({ forceScroll = false } = {}) {
     });
 
     wrapper.innerHTML = parts.join('');
+
+    // 为自己的消息绑定长按事件
+    document.querySelectorAll('[data-message-id]').forEach(el => {
+        let pressTimer = null;
+        const handlePress = () => {
+            pressTimer = setTimeout(() => {
+                const msgId = el.getAttribute('data-message-id');
+                const message = messages.find(m => m.id == msgId);
+                if (message) showGroupRecallMenu(message);
+            }, 500);
+        };
+        const handleRelease = () => {
+            if (pressTimer) clearTimeout(pressTimer);
+        };
+
+        el.addEventListener('touchstart', handlePress);
+        el.addEventListener('touchend', handleRelease);
+        el.addEventListener('touchmove', handleRelease);
+        el.addEventListener('mousedown', handlePress);
+        el.addEventListener('mouseup', handleRelease);
+        el.addEventListener('mouseleave', handleRelease);
+    });
 
     if (shouldStick) {
         requestAnimationFrame(scrollToBottom);
@@ -959,11 +985,25 @@ function getFileIconSVG(ext) {
  * 图片预览
  */
 function previewImage(url) {
-    weui.gallery(url, {
-        className: 'custom-classname',
-        onDelete: function () {
-            // 可以添加删除图片功能
-        }
+    //只使用previewImage，config 乱写都行
+    wx.config({
+        appId: '1234',
+        timestamp: '123',
+        nonceStr: '123',
+        signature: '123',
+        jsApiList: []
+    });
+    wx.ready(function () {
+        // 在这里调用 API
+        wx.checkJsApi({
+            jsApiList: [
+                'previewImage'
+            ],
+        });
+        wx.previewImage({
+            current: url,
+            urls: [url]
+        });
     });
 }
 
@@ -1039,6 +1079,61 @@ function escapeHtml(str = '') {
         '>': '&gt;',
         '"': '&quot;'
     }[char] || char));
+}
+
+/**
+ * 显示撤回菜单
+ */
+function showGroupRecallMenu(message) {
+    const now = new Date();
+    const msgTime = new Date(message.created_at);
+    const diffSeconds = Math.floor((now - msgTime) / 1000);
+    const canRecall = diffSeconds <= 600; // 10分钟内可撤回
+
+    const actions = [];
+
+    if (canRecall) {
+        actions.push({
+            label: '撤回消息',
+            onClick: function() {
+                recallGroupMessage(message.id);
+            }
+        });
+    } else {
+        actions.push({
+            label: '消息已超过10分钟，无法撤回',
+            onClick: function() {}
+        });
+    }
+
+    weui.actionSheet(actions, [
+        {
+            label: '取消',
+            onClick: function() {}
+        }
+    ]);
+}
+
+/**
+ * 撤回群消息
+ */
+function recallGroupMessage(messageId) {
+    axios.post(`/wechat/chat/groups/${groupId}/message/${messageId}/recall`)
+        .then(response => {
+            if (response.data.code !== 200) {
+                throw new Error(response.data.message || '撤回失败');
+            }
+
+            // 从消息列表中删除该消息
+            messages = messages.filter(m => m.id !== messageId);
+            renderMessages({ forceScroll: false });
+
+            utils.toast('消息已撤回');
+        })
+        .catch(error => {
+            console.error('撤回消息失败:', error);
+            utils.toast(error.response?.data?.message || error.message || '撤回失败');
+        });
 }
 
 window.addEventListener('beforeunload', stopPolling);

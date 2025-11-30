@@ -139,12 +139,16 @@
                 <!-- 状态 -->
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700">账户状态</label>
+                    @if($admin->id === auth('admin')->id())
+                    <!-- 编辑自己时，disabled的radio不会提交，需要用隐藏字段保留原值 -->
+                    <input type="hidden" name="status" value="{{ $admin->status }}">
+                    @endif
                     <div class="mt-2 space-y-2">
                         <div class="flex items-center">
-                            <input id="status_active" 
-                                   name="status" 
-                                   type="radio" 
-                                   value="1" 
+                            <input id="status_active"
+                                   name="status"
+                                   type="radio"
+                                   value="1"
                                    {{ old('status', $admin->status) == 1 ? 'checked' : '' }}
                                    {{ $admin->id === auth('admin')->id() ? 'disabled' : '' }}
                                    class="h-4 w-4 border-gray-300 text-primary-600 focus:ring-primary-600">
@@ -154,10 +158,10 @@
                             </label>
                         </div>
                         <div class="flex items-center">
-                            <input id="status_inactive" 
-                                   name="status" 
-                                   type="radio" 
-                                   value="0" 
+                            <input id="status_inactive"
+                                   name="status"
+                                   type="radio"
+                                   value="0"
                                    {{ old('status', $admin->status) == 0 ? 'checked' : '' }}
                                    {{ $admin->id === auth('admin')->id() ? 'disabled' : '' }}
                                    class="h-4 w-4 border-gray-300 text-primary-600 focus:ring-primary-600">

@@ -160,6 +160,9 @@ Route::prefix('wechat')->name('wechat.')->group(function () {
         Route::delete('/chat/message/{messageId}', [ChatController::class, 'deleteMessage'])
             ->middleware('check.permission:chat.send')
             ->name('chat.delete');
+        Route::post('/chat/message/{messageId}/recall', [ChatController::class, 'recallMessage'])
+            ->middleware('check.permission:chat.send')
+            ->name('chat.recall');
 
         // 文件上传路由
         Route::post('/chat/upload/image', [ChatController::class, 'uploadImage'])
@@ -187,6 +190,9 @@ Route::prefix('wechat')->name('wechat.')->group(function () {
         Route::post('/chat/groups/send', [ChatGroupController::class, 'sendGroupMessage'])
             ->middleware('check.permission:chat.send')
             ->name('chat.groups.send');
+        Route::post('/chat/groups/{groupId}/message/{messageId}/recall', [ChatGroupController::class, 'recallGroupMessage'])
+            ->middleware('check.permission:chat.send')
+            ->name('chat.groups.recall');
         Route::post('/chat/groups/{groupId}/invite', [ChatGroupController::class, 'inviteMembers'])
             ->name('chat.groups.invite');
         Route::delete('/chat/groups/{groupId}/members/{memberId}', [ChatGroupController::class, 'removeMember'])

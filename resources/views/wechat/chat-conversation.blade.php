@@ -625,6 +625,7 @@ function renderMessages(options = {}) {
         const isMine = message.from_user_id === currentUser.id;
         const item = document.createElement('div');
         item.className = `message-item ${isMine ? 'mine' : ''}`;
+        item.dataset.messageId = message.id;
 
         const avatar = document.createElement('img');
         avatar.className = 'message-avatar';
@@ -637,6 +638,26 @@ function renderMessages(options = {}) {
         const bubble = document.createElement('div');
         bubble.className = 'message-bubble';
         bubble.innerHTML = formatMessageContent(message);
+
+        // 自己的消息可以长按撤回
+        if (isMine) {
+            let pressTimer = null;
+            const handlePress = () => {
+                pressTimer = setTimeout(() => showRecallMenu(message), 500);
+            };
+            const handleRelease = () => {
+                if (pressTimer) clearTimeout(pressTimer);
+            };
+
+            bubble.addEventListener('touchstart', handlePress);
+            bubble.addEventListener('touchend', handleRelease);
+            bubble.addEventListener('touchmove', handleRelease);
+            bubble.addEventListener('mousedown', handlePress);
+            bubble.addEventListener('mouseup', handleRelease);
+            bubble.addEventListener('mouseleave', handleRelease);
+
+            bubble.style.cursor = 'pointer';
+        }
 
         const time = document.createElement('div');
         time.className = 'message-time';
@@ -1090,11 +1111,25 @@ function getFileIconSVG(ext) {
  * 图片预览
  */
 function previewImage(url) {
-    weui.gallery(url, {
-        className: 'custom-classname',
-        onDelete: function () {
-            // 可以添加删除图片功能
-        }
+     //只使用previewImage，config 乱写都行
+     wx.config({
+        appId: '1234',
+        timestamp: '123',
+        nonceStr: '123',
+        signature: '123',
+        jsApiList: []
+    });
+    wx.ready(function () {
+        // 在这里调用 API
+        wx.checkJsApi({
+            jsApiList: [
+                'previewImage'
+            ],
+        });
+        wx.previewImage({
+            current: url,
+            urls: [url]
+        });
     });
 }
 
@@ -1120,6 +1155,61 @@ function downloadFile(url, filename) {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+}
+
+/**
+ * 显示撤回菜单
+ */
+function showRecallMenu(message) {
+    const now = new Date();
+    const msgTime = new Date(message.created_at);
+    const diffSeconds = Math.floor((now - msgTime) / 1000);
+    const canRecall = diffSeconds <= 600; // 10分钟内可撤回
+
+    const actions = [];
+
+    if (canRecall) {
+        actions.push({
+            label: '撤回消息',
+            onClick: function() {
+                recallMessage(message.id);
+            }
+        });
+    } else {
+        actions.push({
+            label: '消息已超过10分钟，无法撤回',
+            onClick: function() {}
+        });
+    }
+
+    weui.actionSheet(actions, [
+        {
+            label: '取消',
+            onClick: function() {}
+        }
+    ]);
+}
+
+/**
+ * 撤回消息
+ */
+function recallMessage(messageId) {
+    axios.post(`/wechat/chat/message/${messageId}/recall`)
+        .then(response => {
+            if (response.data.code !== 200) {
+                throw new Error(response.data.message || '撤回失败');
+            }
+
+            // 从消息列表中删除该消息
+            messages = messages.filter(m => m.id !== messageId);
+            renderMessages({ forceScroll: false });
+
+            utils.toast('消息已撤回');
+        })
+        .catch(error => {
+            console.error('撤回消息失败:', error);
+            utils.toast(error.response?.data?.message || error.message || '撤回失败');
+        });
 }
 
 </script>

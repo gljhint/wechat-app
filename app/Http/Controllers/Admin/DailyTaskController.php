@@ -72,7 +72,7 @@ class DailyTaskController extends Controller
     {
         $dailyTask->loadCount(['checkins', 'completedCheckins']);
         $dailyTask->load(['checkins.user' => function($query) {
-            $query->select('id', 'nickname', 'real_name', 'avatar');
+            $query->select('id', 'nickname', 'real_name', 'avatar_url');
         }]);
 
         return view('admin.daily-tasks.show', compact('dailyTask'));

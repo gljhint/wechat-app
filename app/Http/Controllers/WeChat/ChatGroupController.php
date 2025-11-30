@@ -318,7 +318,8 @@ class ChatGroupController extends Controller
         $afterId = $request->get('after_id');
 
         $query = ChatMessage::with(['fromUser'])
-            ->where('group_id', $groupId);
+            ->where('group_id', $groupId)
+            ->where('is_recalled', ChatMessage::NOT_RECALLED);
 
         if ($afterId) {
             $query->where('id', '>', $afterId);
@@ -364,6 +365,90 @@ class ChatGroupController extends Controller
                 ]
             ]
         ]);
+    }
+
+    /**
+     * 撤回群消息
+     */
+    public function recallGroupMessage(Request $request, $groupId, $messageId)
+    {
+        $userId = Session::get('wechat_user_id');
+
+        if (!$userId) {
+            return response()->json([
+                'code' => 401,
+                'message' => '未登录'
+            ], 401);
+        }
+
+        // 检查是否是群成员
+        $isMember = ChatGroupMember::where('group_id', $groupId)
+                                   ->where('user_id', $userId)
+                                   ->exists();
+
+        if (!$isMember) {
+            return response()->json([
+                'code' => 403,
+                'message' => '您不是该群成员'
+            ], 403);
+        }
+
+        $message = ChatMessage::where('id', $messageId)
+                             ->where('group_id', $groupId)
+                             ->first();
+
+        if (!$message) {
+            return response()->json([
+                'code' => 404,
+                'message' => '消息不存在'
+            ], 404);
+        }
+
+        // 只能撤回自己发送的消息
+        if ($message->from_user_id !== $userId) {
+            return response()->json([
+                'code' => 403,
+                'message' => '无权撤回此消息'
+            ], 403);
+        }
+
+        // 检查是否已经撤回
+        if ($message->is_recalled) {
+            return response()->json([
+                'code' => 400,
+                'message' => '消息已撤回'
+            ], 400);
+        }
+
+        // 检查撤回时间限制（10分钟内）
+        $recallTimeLimit = 10 * 60; // 2分钟
+        $messageAge = now()->diffInSeconds($message->created_at);
+
+        if ($messageAge > $recallTimeLimit) {
+            return response()->json([
+                'code' => 400,
+                'message' => '消息发送超过10分钟，无法撤回'
+            ], 400);
+        }
+
+        try {
+            $message->recall();
+
+            return response()->json([
+                'code' => 200,
+                'message' => '撤回成功',
+                'data' => new ChatMessageResource($message->fresh())
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('撤回群消息失败: ' . $e->getMessage());
+
+            return response()->json([
+                'code' => 500,
+                'message' => '撤回失败',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
