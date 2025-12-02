@@ -9,6 +9,7 @@ use App\Http\Controllers\WeChat\CheckinController;
 use App\Http\Controllers\WeChat\DocumentController;
 use App\Http\Controllers\WeChat\SystemController;
 use App\Http\Controllers\WeChat\SongController;
+use App\Http\Controllers\WeChat\BibleExplanationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -218,6 +219,18 @@ Route::prefix('wechat')->name('wechat.')->group(function () {
             Route::get('/checkin/history', [CheckinController::class, 'history'])->name('checkin.history');
             Route::get('/api/checkin/history', [CheckinController::class, 'historyData'])->name('checkin.history.data');
             Route::get('/checkin/task/{date}', [CheckinController::class, 'taskDetail'])->name('checkin.task');
+
+            // AI解释功能
+            Route::get('/bible-explanations/task/{dailyTaskId}', [BibleExplanationController::class, 'show'])->name('bible-explanations.show');
+            Route::post('/bible-explanations/{explanation}/vote', [BibleExplanationController::class, 'vote'])
+                ->middleware('throttle:10,1')
+                ->name('bible-explanations.vote');
+            Route::post('/bible-explanations/task/{dailyTaskId}/generate', [BibleExplanationController::class, 'generate'])
+                ->middleware('throttle:5,1')
+                ->name('bible-explanations.generate');
+            Route::post('/bible-explanations/task/{dailyTaskId}/regenerate', [BibleExplanationController::class, 'regenerate'])
+                ->middleware('throttle:5,1')
+                ->name('bible-explanations.regenerate');
         });
 
         // 查看他人打卡功能（需要权限）

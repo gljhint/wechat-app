@@ -38,6 +38,14 @@ class DailyTask extends Model
     }
 
     /**
+     * 获取AI解释
+     */
+    public function explanation()
+    {
+        return $this->hasOne(BibleReadingExplanation::class);
+    }
+
+    /**
      * 获取今天的学习任务
      */
     public static function getTodayTask()

@@ -66,6 +66,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
         // 学习任务管理
         Route::resource('daily-tasks', DailyTaskController::class);
         Route::post('daily-tasks/batch', [DailyTaskController::class, 'batchCreate'])->name('daily-tasks.batch');
+        Route::post('daily-tasks/{dailyTask}/generate-explanation', [DailyTaskController::class, 'generateExplanation'])->name('daily-tasks.generate-explanation');
+        Route::post('daily-tasks/{dailyTask}/regenerate-explanation', [DailyTaskController::class, 'regenerateExplanation'])->name('daily-tasks.regenerate-explanation');
+        Route::delete('daily-tasks/{dailyTask}/delete-explanation', [DailyTaskController::class, 'deleteExplanation'])->name('daily-tasks.delete-explanation');
 
         // 打卡管理
         Route::resource('checkins', CheckinController::class)->only(['index', 'show', 'edit', 'update', 'destroy']);

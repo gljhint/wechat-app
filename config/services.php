@@ -38,4 +38,10 @@ return [
         'realtime_api_key' => env('CLOUDFLARE_REALTIME_API_KEY'),
     ],
 
+    'openrouter' => [
+        // OpenRouter AI API 配置
+        // 获取方式: https://openrouter.ai/keys
+        'api_key' => env('OPENROUTER_API_KEY'),
+    ],
+
 ];

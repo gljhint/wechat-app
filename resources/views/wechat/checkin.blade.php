@@ -159,6 +159,177 @@
         opacity: 0.4;
         cursor: not-allowed;
     }
+
+    .ai-explanation-toggle {
+        margin-top: 12px;
+        padding: 10px 16px;
+        background: #f8f9fb;
+        border-radius: 8px;
+        border: none;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 14px;
+        color: #576b95;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-weight: 600;
+    }
+
+    .ai-explanation-toggle:active {
+        background: #e8ecf1;
+    }
+
+    .ai-explanation-toggle svg {
+        width: 16px;
+        height: 16px;
+        fill: currentColor;
+        transition: transform 0.3s;
+    }
+
+    .ai-explanation-toggle.expanded svg {
+        transform: rotate(180deg);
+    }
+
+    .ai-explanation-content {
+        margin-top: 12px;
+        padding: 16px;
+        background: #f8fafb;
+        border-radius: 8px;
+        font-size: 14px;
+        line-height: 1.8;
+        color: #333;
+        white-space: pre-wrap;
+        word-break: break-word;
+        display: none;
+    }
+
+    .ai-explanation-content.show {
+        display: block;
+    }
+
+    .ai-actions {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid #e5e9ef;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .ai-vote-btn {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px 16px;
+        border-radius: 6px;
+        border: 1px solid #e5e9ef;
+        background: #fff;
+        font-size: 14px;
+        color: #666;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .ai-vote-btn svg {
+        width: 18px;
+        height: 18px;
+        fill: currentColor;
+    }
+
+    .ai-vote-btn:active {
+        transform: scale(0.96);
+    }
+
+    .ai-vote-btn.active {
+        border-color: #4bb0ff;
+        background: #f0f7ff;
+        color: #4bb0ff;
+    }
+
+    .ai-vote-btn.like.active {
+        border-color: #07c160;
+        background: #e7f8ed;
+        color: #07c160;
+    }
+
+    .ai-vote-btn.dislike.active {
+        border-color: #fa5151;
+        background: #fff1f1;
+        color: #fa5151;
+    }
+
+    .ai-generate-btn {
+        padding: 10px 20px;
+        background: linear-gradient(135deg, #4bb0ff 0%, #446dff 100%);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .ai-generate-btn:active {
+        transform: scale(0.96);
+        opacity: 0.9;
+    }
+
+    .ai-generate-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .ai-warning {
+        padding: 10px 12px;
+        background: #fff7e6;
+        border-left: 3px solid #ff9900;
+        border-radius: 4px;
+        font-size: 13px;
+        color: #d97706;
+        margin-bottom: 12px;
+    }
+
+    .ai-disclaimer {
+        margin-top: 12px;
+        padding: 8px 12px;
+        background: #f0f0f0;
+        border-radius: 4px;
+        font-size: 12px;
+        color: #666;
+        line-height: 1.6;
+    }
+
+    .ai-explanation-content h1,
+    .ai-explanation-content h2,
+    .ai-explanation-content h3 {
+        font-weight: 600;
+        margin-top: 16px;
+        margin-bottom: 8px;
+        color: #333;
+    }
+
+    .ai-explanation-content h1 { font-size: 18px; }
+    .ai-explanation-content h2 { font-size: 16px; }
+    .ai-explanation-content h3 { font-size: 15px; }
+
+    .ai-explanation-content strong {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .ai-explanation-content ul,
+    .ai-explanation-content ol {
+        margin: 8px 0;
+        padding-left: 20px;
+    }
+
+    .ai-explanation-content li {
+        margin: 4px 0;
+    }
 </style>
 @endpush
 
@@ -176,6 +347,23 @@
                 每天读经
             </div>
             <div class="task-section__content">{!! $todayTask->bible_reading !!}</div>
+
+            <!-- AI解释折叠区 -->
+            <button class="ai-explanation-toggle" onclick="toggleAIExplanation()">
+                <span>
+                    <svg style="width:16px;height:16px;fill:currentColor;vertical-align:middle;margin-right:4px;" viewBox="0 0 24 24"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
+                    AI解释
+                </span>
+                <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+            </button>
+
+            <div class="ai-explanation-content" id="aiExplanationContent" data-task-id="{{ $todayTask->id }}">
+                <!-- AI解释内容将在这里动态加载 -->
+                <div style="text-align:center;padding:20px;color:#999;">
+                    <svg style="width:48px;height:48px;fill:#ddd;margin-bottom:8px;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                    <div>加载中...</div>
+                </div>
+            </div>
         </div>
         <div class="task-section">
             <div class="task-section__title">
@@ -284,6 +472,10 @@
 let currentDate = new Date('{{ $targetDate->toDateString() }}');
 const today = new Date('{{ now()->toDateString() }}');
 
+// AI解释相关变量
+let aiExplanationData = null;
+let isExplanationLoaded = false;
+
 // 日期导航
 document.getElementById('prevDayBtn').addEventListener('click', function() {
     navigateDate(-1);
@@ -361,6 +553,222 @@ function completeTask(button) {
                 });
         }
     });
+}
+
+// ===== AI解释功能 =====
+
+// 简单的 Markdown 转 HTML 函数
+function simpleMarkdownToHtml(text) {
+    // 转义 HTML 特殊字符
+    text = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    // 标题: ### 标题 -> <h3>标题</h3>
+    text = text.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+    text = text.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+    text = text.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+
+    // 粗体: **文本** -> <strong>文本</strong>
+    text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+    // 列表项: - 项目 或 · 项目
+    text = text.replace(/^[·-] (.+)$/gm, '<li>$1</li>');
+
+    // 将连续的 li 包裹在 ul 中
+    text = text.replace(/(<li>.*<\/li>\n?)+/g, function(match) {
+        return '<ul>' + match + '</ul>';
+    });
+
+    // 换行处理
+    text = text.replace(/\n/g, '<br>');
+
+    return text;
+}
+
+// 展开/折叠AI解释
+function toggleAIExplanation() {
+    const toggle = document.querySelector('.ai-explanation-toggle');
+    const content = document.getElementById('aiExplanationContent');
+
+    toggle.classList.toggle('expanded');
+    content.classList.toggle('show');
+
+    // 首次打开时加载数据
+    if (content.classList.contains('show') && !isExplanationLoaded) {
+        loadAIExplanation();
+    }
+}
+
+// 加载AI解释
+function loadAIExplanation() {
+    const content = document.getElementById('aiExplanationContent');
+    const taskId = content.getAttribute('data-task-id');
+
+    axios.get(`/wechat/bible-explanations/task/${taskId}`)
+        .then(response => {
+            isExplanationLoaded = true;
+
+            if (response.data.success) {
+                aiExplanationData = response.data.data;
+                renderAIExplanation(aiExplanationData);
+            } else {
+                // 没有解释，显示生成按钮
+                renderNoExplanation();
+            }
+        })
+        .catch(error => {
+            console.error('加载AI解释错误:', error);
+            if (error.response && error.response.status === 404) {
+                renderNoExplanation();
+            } else {
+                content.innerHTML = '<div style="text-align:center;padding:20px;color:#fa5151;">加载失败，请重试</div>';
+            }
+        });
+}
+
+// 渲染AI解释内容
+function renderAIExplanation(data) {
+    const content = document.getElementById('aiExplanationContent');
+    const shouldRegenerate = data.dislikes_count > 5;
+
+    let html = '';
+
+    if (shouldRegenerate) {
+        html += `<div class="ai-warning">
+            <svg style="width:14px;height:14px;fill:currentColor;vertical-align:middle;margin-right:4px;" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+            该解释踩数已超过5次，建议重新生成
+        </div>`;
+    }
+
+    // 将 Markdown 转换为 HTML
+    const htmlContent = simpleMarkdownToHtml(data.explanation);
+    html += `<div style="margin-bottom:12px;">${htmlContent}</div>`;
+
+
+    // 添加免责声明
+    html += `<div class="ai-disclaimer">
+        <svg style="width:14px;height:14px;fill:currentColor;vertical-align:middle;margin-right:4px;" viewBox="0 0 24 24"><path d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></svg>这是由AI生成的内容，内容可能是错的，仅供参考。${shouldRegenerate ? '' : '踩的数量大于5可以重新生成。'}
+    </div>`;
+
+    html += `<div class="ai-actions">
+        <button class="ai-vote-btn like ${data.user_vote === 1 ? 'active' : ''}" onclick="voteExplanation(1)">
+            <svg viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>
+            <span>${data.likes_count}</span>
+        </button>
+        <button class="ai-vote-btn dislike ${data.user_vote === -1 ? 'active' : ''}" onclick="voteExplanation(-1)">
+            <svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg>
+            <span>${data.dislikes_count}</span>
+        </button>`;
+
+    if (shouldRegenerate) {
+        html += `<button class="ai-generate-btn" onclick="regenerateExplanation()">重新生成</button>`;
+    }
+
+    html += `</div>`;
+
+    content.innerHTML = html;
+}
+
+// 渲染无解释状态
+function renderNoExplanation() {
+    const content = document.getElementById('aiExplanationContent');
+    content.innerHTML = `
+        <div style="text-align:center;padding:20px;">
+            <svg style="width:48px;height:48px;fill:#ddd;margin-bottom:8px;" viewBox="0 0 24 24"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
+            <div style="color:#999;margin-bottom:16px;">暂无AI解释</div>
+            <button class="ai-generate-btn" onclick="generateExplanation()">生成解释</button>
+        </div>
+    `;
+}
+
+// 生成AI解释
+function generateExplanation() {
+    const content = document.getElementById('aiExplanationContent');
+    const taskId = content.getAttribute('data-task-id');
+
+    utils.loading('生成中...');
+
+    axios.post(`/wechat/bible-explanations/task/${taskId}/generate`)
+        .then(response => {
+            if (response.data.success) {
+                utils.toast('生成成功！');
+                // 重新加载解释
+                isExplanationLoaded = false;
+                loadAIExplanation();
+            } else {
+                utils.toast(response.data.message || '生成失败', { type: 'top' });
+            }
+        })
+        .catch(error => {
+            console.error('生成AI解释错误:', error);
+            utils.toast('生成失败，请重试', { type: 'top' });
+        })
+        .finally(() => {
+            utils.hideLoading();
+        });
+}
+
+// 重新生成AI解释
+function regenerateExplanation() {
+    utils.confirm({
+        message: '确认重新生成AI解释？',
+        confirmText: '确认',
+        onConfirm: () => {
+            const content = document.getElementById('aiExplanationContent');
+            const taskId = content.getAttribute('data-task-id');
+
+            utils.loading('重新生成中...');
+
+            axios.post(`/wechat/bible-explanations/task/${taskId}/regenerate`)
+                .then(response => {
+                    if (response.data.success) {
+                        utils.toast('重新生成成功！');
+                        // 重新加载解释
+                        isExplanationLoaded = false;
+                        loadAIExplanation();
+                    } else {
+                        utils.toast(response.data.message || '生成失败', { type: 'top' });
+                    }
+                })
+                .catch(error => {
+                    console.error('重新生成AI解释错误:', error);
+                    utils.toast('生成失败，请重试', { type: 'top' });
+                })
+                .finally(() => {
+                    utils.hideLoading();
+                });
+        }
+    });
+}
+
+// 投票
+function voteExplanation(voteType) {
+    if (!aiExplanationData) return;
+
+    axios.post(`/wechat/bible-explanations/${aiExplanationData.id}/vote`, {
+        vote_type: voteType
+    })
+        .then(response => {
+            if (response.data.success) {
+                // 更新数据
+                aiExplanationData.likes_count = response.data.data.likes_count;
+                aiExplanationData.dislikes_count = response.data.data.dislikes_count;
+                aiExplanationData.user_vote = response.data.data.user_vote;
+
+                // 重新渲染
+                renderAIExplanation(aiExplanationData);
+
+                // 如果需要重新生成，提示用户
+                if (response.data.data.should_regenerate) {
+                    utils.toast('该解释踩数已超过5次，建议重新生成');
+                }
+            } else {
+                utils.toast(response.data.message || '投票失败', { type: 'top' });
+            }
+        })
+        .catch(error => {
+            console.error('投票错误:', error);
+            utils.toast('投票失败，请重试', { type: 'top' });
+        });
 }
 </script>
 @endpush
